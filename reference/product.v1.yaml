@@ -4,153 +4,101 @@ info:
     email: 1052015365@qq.com
   title: product
   version: '1.0'
-  description: 产品管理服务
+  description: 和阡陌小程序
 servers:
   - url: 'http://localhost:3000 '
 paths:
-  '/users/{userId}':
-    parameters:
-      - schema:
-          type: integer
-        name: userId
-        in: path
-        required: true
-        description: Id of an existing user.
+  /carts:
+    parameters: []
     get:
-      summary: Get User Info by User ID
+      summary: 购物车列表
+      operationId: get-carts
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    cart:
+                      $ref: '#/components/schemas/cart'
+                    status:
+                      type: boolean
+                      description: 是否被选中
+              examples:
+                example-1:
+                  value:
+                    - product:
+                        id: 0
+                        name: string
+                        price: 0
+                        originPrice: 0
+                        thumb: string
+                      number: 0
+      description: 购物车列表
       tags:
-        - user
-      responses:
-        '200':
-          description: User Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                Get User Alice Smith:
-                  value:
-                    id: 142
-                    firstName: Alice
-                    lastName: Smith
-                    email: alice.smith@gmail.com
-                    dateOfBirth: '1997-10-31'
-                    emailVerified: true
-                    signUpDate: '2019-08-24'
-        '404':
-          description: User Not Found
-      operationId: get-users-userId
-      description: Retrieve the information of the user with the matching user ID.
-    patch:
-      summary: Update User Information
-      operationId: patch-users-userId
-      responses:
-        '200':
-          description: User Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                Updated User Rebecca Baker:
-                  value:
-                    id: 13
-                    firstName: Rebecca
-                    lastName: Baker
-                    email: rebecca@gmail.com
-                    dateOfBirth: '1985-10-02'
-                    emailVerified: false
-                    createDate: '2019-08-24'
-        '404':
-          description: User Not Found
-        '409':
-          description: Email Already Taken
-      description: Update the infromation of an existing user.
+        - cart
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                email:
-                  type: string
-                  description: 'If a new email is given, the user''s email verified property will be set to false.'
-                dateOfBirth:
-                  type: string
-            examples:
-              Update First Name:
-                value:
-                  firstName: Rebecca
-              Update Email:
-                value:
-                  email: rebecca@gmail.com
-              Update Last Name & Date of Birth:
-                value:
-                  lastName: Baker
-                  dateOfBirth: '1985-10-02'
-        description: Patch user properties to update.
-      tags:
-        - user
-  /user:
-    post:
-      summary: Create New User
-      operationId: post-user
+                userId:
+                  type: integer
+    put:
+      summary: 更新购物车商品（操作购物车）
+      operationId: put-carts
       responses:
         '200':
-          description: User Created
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                New User Bob Fellow:
-                  value:
-                    id: 12
-                    firstName: Bob
-                    lastName: Fellow
-                    email: bob.fellow@gmail.com
-                    dateOfBirth: '1996-08-24'
-                    emailVerified: false
-                    createDate: '2020-11-18'
-        '400':
-          description: Missing Required Information
-        '409':
-          description: Email Already Taken
+                type: object
+                properties:
+                  cartsPaymentDetail:
+                    $ref: '#/components/schemas/cartsPaymentDetail'
+      description: 更新购物车
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                email:
-                  type: string
-                dateOfBirth:
-                  type: string
-                  format: date
-              required:
-                - firstName
-                - lastName
-                - email
-                - dateOfBirth
-            examples:
-              Create User Bob Fellow:
-                value:
-                  firstName: Bob
-                  lastName: Fellow
-                  email: bob.fellow@gmail.com
-                  dateOfBirth: '1996-08-24'
-        description: Post the necessary fields for the API to create a new user.
-      description: Create a new user.
+                userId:
+                  type: integer
+                cartId:
+                  type: integer
+                status:
+                  type: boolean
+                num:
+                  type: integer
       tags:
-        - user
+        - cart
+    delete:
+      summary: 删除购物车
+      operationId: delete-carts
+      responses:
+        '204':
+          description: No Content
+      description: 删除购物车
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cartId:
+                  type: integer
+                uerId:
+                  type: integer
+      tags:
+        - cart
   /products:
     get:
       summary: Your GET endpoint
@@ -194,7 +142,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductDetail'
         '404':
           description: Not Found
       operationId: get-product
@@ -241,6 +189,125 @@ paths:
       description: 删除产品
       tags:
         - product
+  /frontProducts:
+    get:
+      summary: 首页商品列表
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/category'
+      operationId: get-frontProducts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+            examples:
+              example-1:
+                value:
+                  '': string
+        description: ''
+      description: 首页商品列表
+      tags:
+        - product
+  /pickUpPoint?state=default:
+    get:
+      summary: 用户默认自提点
+      tags:
+        - pickUpPoint
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pickUpPoint'
+      operationId: get-pick
+      description: 用户默认自提点
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pickUpPoint'
+            examples:
+              example-1:
+                value:
+                  id: string
+                  thumb: string
+                  name: string
+                  distance: string
+                  position: string
+          application/xml:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+        description: ''
+    parameters: []
+  /pickUpPoints?state=nearby:
+    get:
+      summary: 获取基于当前选择地址的自提点
+      tags:
+        - pickUpPoint
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/pickUpPoint'
+      operationId: get-pickUpPoints?state=nearby
+      description: 获取基于当前选择地址的自提点
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                position:
+                  $ref: '#/components/schemas/position'
+  /goodCarts:
+    put:
+      summary: 更新购物车商品（操作商品）
+      operationId: put-goodCarts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cartsPamentDetail:
+                    $ref: '#/components/schemas/cartsPaymentDetail'
+      description: 更新购物车商品（操作商品）
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                goodsId:
+                  type: integer
+                goodsSku:
+                  $ref: '#/components/schemas/goodsSku'
+                goodsNum:
+                  type: integer
+      tags:
+        - cart
 components:
   schemas:
     User:
@@ -286,21 +353,137 @@ components:
         - emailVerified
     Product:
       title: Product
-      type: object
       description: 产品
+      x-examples:
+        example-1:
+          id: 1
+          name: string
+          price: 4.99
+          originPrice: 9.99
+          thumb: string
+          cartNum: 1
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        originPrice:
+          type: number
+        thumb:
+          type: string
+        sku:
+          $ref: '#/components/schemas/goodsSku'
+    ProductDetail:
+      title: ProductDetail
+      type: object
+      x-examples:
+        example-1:
+          id: string
+          imgs: string
       properties:
         id:
           type: string
         name:
           type: string
-        description:
-          type: string
         price:
-          type: number
-          format: double
-          minimum: 0
-        sku:
           type: string
+        originPrice:
+          type: string
+        specInfo:
+          $ref: '#/components/schemas/specInfo'
+        detail:
+          type: string
+        sku:
+          $ref: '#/components/schemas/goodsSku'
+    specInfo:
+      title: specs
+      type: object
+      properties:
+        code:
+          type: string
+          description: 商品编号
+        specs:
+          type: string
+          description: 规格
+        brand:
+          type: string
+          description: 品牌
+        productionDate:
+          type: string
+          description: 生产日期
+        storageMeans:
+          type: string
+          description: |
+            存储方式
+      description: 商品附加信息
+    cart:
+      title: cart
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/Product'
+        number:
+          type: integer
+          description: 商品数量
+        status:
+          type: boolean
+          description: 是否被选中
+    category:
+      title: category
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: ''
+    pickUpPoint:
+      title: pickUpPoint
+      type: object
+      properties:
+        id:
+          type: string
+        thumb:
+          type: string
+          description: 缩略图
+        name:
+          type: string
+        distance:
+          type: string
+        position:
+          type: string
+    position:
+      title: position
+      type: object
+      properties:
+        lat:
+          type: string
+        lng:
+          type: string
+    goodsSku:
+      title: goodsSku
+      type: string
+    chooseCarts:
+      title: chooseCarts
+      type: array
+      items: {}
+    cartsPaymentDetail:
+      title: cartsPaymentDetail
+      type: object
+      description: 购物车支付详情
+      properties:
+        totalPrice:
+          type: number
+        totalNum:
+          type: integer
 tags:
   - name: product
   - name: user
+  - name: pickUpPoint
+  - name: cart
